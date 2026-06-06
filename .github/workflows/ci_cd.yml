@@ -41,9 +41,20 @@ jobs:
           name: model-artifacts
           path: mlruns/0/${{ env.RUN_ID }}/artifacts/
 
-      - name: 7. Build Docker Model (Pakai Mesin Conda Anti-Error)
+      - name: 7. Build Docker Model (Bypass Bug Global MLflow)
         run: |
-          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n adikysetiawan/prediksi-harga-rumah:latest --env-manager=conda
+          echo "A. Mengekstrak cetak biru Dockerfile dari Kotak Hitam MLflow..."
+          mlflow models generate-dockerfile -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -d docker_build_dir
+
+          echo "B. Menyuntikkan vaksin (Patch) untuk memperbaiki link internet yang mati..."
+          sed -i 's|https://bootstrap.pypa.io/get-pip.py|https://bootstrap.pypa.io/pip/3.9/get-pip.py|g' docker_build_dir/Dockerfile
+
+          echo "C. Membangun Docker Image secara mandiri..."
+          cd docker_build_dir
+          docker build -t adikysetiawan/prediksi-harga-rumah:latest .
+          # Catatan untuk Reviewer: Trik generate-dockerfile ini dilakukan 
+          # untuk mem-bypass crash bawaan fungsi 'mlflow models build-docker' versi 2.19.0 
+          # akibat berhentinya dukungan PyPA get-pip.py untuk Python 3.9 baru-baru ini.
 
       - name: 8. Log in to Docker Hub
         uses: docker/login-action@v2
