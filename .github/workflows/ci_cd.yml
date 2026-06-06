@@ -44,7 +44,7 @@ jobs:
       - name: 7. Build Docker Model
         # GANTI 'usernamekamu' dengan Username Docker Hub kamu di baris bawah ini!
         run: |
-          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n adikysetiawan/prediksi-harga-rumah:latest
+          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n adikysetiawan/prediksi-harga-rumah:latest --env-manager=conda
 
       - name: 8. Log in to Docker Hub
         uses: docker/login-action@v2
