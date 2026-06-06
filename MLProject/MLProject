@@ -2,6 +2,6 @@ name: Prediksi_Harga_Rumah_CI
 
 conda_env: conda.yaml
 
-entry_points:
-  main:
+entry_points: 
+  main: 
     command: "python modelling.py"
