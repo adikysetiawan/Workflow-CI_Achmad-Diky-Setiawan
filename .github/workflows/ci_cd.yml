@@ -38,18 +38,24 @@ jobs:
       - name: 6. Upload to GitHub (Menyimpan Artefak)
         uses: actions/upload-artifact@v4
         with:
-          name: model-artifacts
-          path: mlruns/0/${{ env.RUN_ID }}/artifacts/
+        name: model-artifacts
+        path: mlruns/0/${{ env.RUN_ID }}/artifacts/
+
+      - name: 6.5. HACK MLFLOW SOURCE CODE (Fix Internet Bug)
+        run: |
+          echo "Menyuntikkan patch ke source code MLflow untuk memperbaiki link pip Python 3.9..."
+          find /opt/hostedtoolcache/Python/3.12.7/x64/lib/python3.12/site-packages/mlflow/ -type f -name "*.py" -exec sed -i 's|https://bootstrap.pypa.io/get-pip.py|https://bootstrap.pypa.io/pip/3.9/get-pip.py|g' {} +
+          echo "Patch berhasil disuntikkan!"
 
       - name: 7. Build Docker Model
-        # GANTI 'usernamekamu' dengan Username Docker Hub kamu di baris bawah ini!
+        # INGAT: Ganti 'username_kamu' dengan username Docker Hub-mu (HURUF KECIL SEMUA!)
         run: |
-          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n adikysetiawan/prediksi-harga-rumah:latest --env-manager=conda
+          mlflow models build-docker -m "mlruns/0/${{ env.RUN_ID }}/artifacts/model" -n adikysetiawan/prediksi-harga-rumah:latest
 
       - name: 8. Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: adikysetiawan
+          username: ${{ secrets.adikysetiawan }}
           password: ${{ secrets.Diky_Moeslim21 }}
 
       - name: 9. Push Docker Image
